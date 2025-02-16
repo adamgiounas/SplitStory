@@ -1,14 +1,17 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour {
     [Header("Player Settings")]
     public bool isKing;
     public bool canDoubleJump = true; // Enable or disable double jump
+    public bool canGlide = true;
 
     [Header("Movement Settings")]
     public float speed = 5f;
     public float jumpForce = 10f;
     public float gravityScale = 3f; // Gravity multiplier
+    public float glideGravityScale = 0.5f; // Weaker gravity while gliding
 
     [Header("Jump Timing Enhancements")]
     public float coyoteTime = 0.2f; // Time window to allow jump after leaving ground
@@ -17,6 +20,7 @@ public class PlayerMovement : MonoBehaviour {
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
+    private bool isGliding = false;
     private float lastGroundedTime; // Stores last time player was on the ground
     private float lastJumpInputTime; // Stores last time jump was pressed
     private int jumpCount; // Tracks jumps (for double jump)
@@ -49,6 +53,7 @@ public class PlayerMovement : MonoBehaviour {
         if (isGrounded) {
             lastGroundedTime = Time.time; // ✅ Store last time the player was on the ground
             jumpCount = 0; // ✅ Reset jump count when grounded
+            isGliding = false;
         }
 
         // ✅ Handle movement input
@@ -58,16 +63,29 @@ public class PlayerMovement : MonoBehaviour {
         controller.Move(move * speed * Time.deltaTime);
 
 
-    if (Input.GetButtonDown(jumpButton)) {
-        lastJumpInputTime = Time.time; // ✅ Store last jump press time
-        if (CanJump()) {
-            velocity.y = Mathf.Sqrt(jumpForce * -2f * Physics.gravity.y);
-            jumpCount++; // ✅ Increase jump count
+        if (Input.GetButtonDown(jumpButton)) {
+            lastJumpInputTime = Time.time; // ✅ Store last jump press time
+            if (CanJump()) {
+                velocity.y = Mathf.Sqrt(jumpForce * -2f * Physics.gravity.y);
+                jumpCount++; // ✅ Increase jump count
+                isGliding = false;
+            }
         }
-    }
 
-        // ✅ Apply gravity
-        velocity.y += Physics.gravity.y * gravityScale * Time.deltaTime;
+        if (canGlide && !isKing) {
+            if (Input.GetButton(jumpButton) && velocity.y < 0) { // ✅ Holding Jump while falling
+                isGliding = true;
+            } else {
+                isGliding = false;
+            }
+        }
+        // ✅ Apply Gravity 
+        if (isGliding) {
+            velocity.y += Physics.gravity.y * glideGravityScale * Time.deltaTime; // 🪂 Weak gravity
+        } else {
+            velocity.y += Physics.gravity.y * gravityScale * Time.deltaTime; // 🌎 Normal gravity
+        }
+
         controller.Move(velocity * Time.deltaTime);
     }
 
