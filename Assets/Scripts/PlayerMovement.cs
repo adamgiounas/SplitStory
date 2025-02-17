@@ -28,10 +28,11 @@ public class PlayerMovement : MonoBehaviour {
     private string horizontalAxis;
     private string verticalAxis;
     private string jumpButton;
+    private Animator animator;
 
     void Start() {
         controller = GetComponent<CharacterController>();
-
+        animator = GetComponentInChildren<Animator>();  
         // Assign correct input mappings
         if (isKing) {
             horizontalAxis = "Horizontal_King";
@@ -55,11 +56,16 @@ public class PlayerMovement : MonoBehaviour {
             jumpCount = 0; // ✅ Reset jump count when grounded
             isGliding = false;
         }
+        animator.SetBool("IsGrounded", isGrounded);
+
 
         // ✅ Handle movement input
         float moveX = Input.GetAxis(horizontalAxis);
         float moveZ = Input.GetAxis(verticalAxis);
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
+        float moveMagnitude = new Vector3(moveX, 0, moveZ).magnitude;
+        animator.SetFloat("Speed", moveMagnitude);
+
         controller.Move(move * speed * Time.deltaTime);
 
 
@@ -69,6 +75,7 @@ public class PlayerMovement : MonoBehaviour {
                 velocity.y = Mathf.Sqrt(jumpForce * -2f * Physics.gravity.y);
                 jumpCount++; // ✅ Increase jump count
                 isGliding = false;
+                animator.SetTrigger("JumpTrigger");
             }
         }
 
@@ -85,7 +92,7 @@ public class PlayerMovement : MonoBehaviour {
         } else {
             velocity.y += Physics.gravity.y * gravityScale * Time.deltaTime; // 🌎 Normal gravity
         }
-
+        animator.SetFloat("VerticalVelocity", velocity.y);
         controller.Move(velocity * Time.deltaTime);
     }
 
