@@ -279,10 +279,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9036980633323257398, guid: 2dfbb63c9cdf7504faf4ff26b0581598, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 3d5233f3f41697e4090d7d6c8d410fb7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -336,10 +332,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7413344840680693326, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 3d5233f3f41697e4090d7d6c8d410fb7, type: 2}
     - target: {fileID: 7647134206250791342, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
       propertyPath: m_Name
       value: FemaleCharacterPBR
@@ -573,10 +565,11 @@ MonoBehaviour:
   isKing: 1
   canDoubleJump: 1
   canGlide: 1
-  speed: 5
+  speed: 6
   jumpForce: 8
   gravityScale: 3
   glideGravityScale: 0.5
+  turnSpeed: 85
   coyoteTime: 0.2
   jumpBufferTime: 0.2
 --- !u!143 &372187265
@@ -1471,10 +1464,11 @@ MonoBehaviour:
   isKing: 0
   canDoubleJump: 1
   canGlide: 1
-  speed: 5
+  speed: 6
   jumpForce: 8
   gravityScale: 3
   glideGravityScale: 0.5
+  turnSpeed: 85
   coyoteTime: 0.2
   jumpBufferTime: 0.2
 --- !u!143 &1533586415

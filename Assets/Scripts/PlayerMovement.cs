@@ -8,10 +8,11 @@ public class PlayerMovement : MonoBehaviour {
     public bool canGlide = true;
 
     [Header("Movement Settings")]
-    public float speed = 5f;
+    public float speed = 7f;
     public float jumpForce = 10f;
     public float gravityScale = 3f; // Gravity multiplier
     public float glideGravityScale = 0.5f; // Weaker gravity while gliding
+    public float turnSpeed = 85f;
 
     [Header("Jump Timing Enhancements")]
     public float coyoteTime = 0.2f; // Time window to allow jump after leaving ground
@@ -55,19 +56,26 @@ public class PlayerMovement : MonoBehaviour {
             lastGroundedTime = Time.time; // ✅ Store last time the player was on the ground
             jumpCount = 0; // ✅ Reset jump count when grounded
             isGliding = false;
+            velocity.y = -2f;
         }
         animator.SetBool("IsGrounded", isGrounded);
 
 
         // ✅ Handle movement input
-        float moveX = Input.GetAxis(horizontalAxis);
-        float moveZ = Input.GetAxis(verticalAxis);
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        float moveMagnitude = new Vector3(moveX, 0, moveZ).magnitude;
-        animator.SetFloat("Speed", moveMagnitude);
-
-        controller.Move(move * speed * Time.deltaTime);
-
+        float moveX = Input.GetAxisRaw(horizontalAxis);
+        float moveZ = Input.GetAxisRaw(verticalAxis);
+        Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
+        if (moveDirection.magnitude < 0.1f)
+        {
+            moveDirection = Vector3.zero; // ✅ Prevents drifting
+        }
+        else if (moveDirection.magnitude > 0.1f)
+        {
+            // ✅ Rotate the character if moving
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection); // ✅ Face movement direction
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed); // ✅ Smooth rotation
+        }
+        animator.SetFloat("Speed", moveDirection.magnitude);
 
         if (Input.GetButtonDown(jumpButton)) {
             lastJumpInputTime = Time.time; // ✅ Store last jump press time
@@ -89,11 +97,13 @@ public class PlayerMovement : MonoBehaviour {
         // ✅ Apply Gravity 
         if (isGliding) {
             velocity.y += Physics.gravity.y * glideGravityScale * Time.deltaTime; // 🪂 Weak gravity
-        } else {
+        } else if (!isGrounded) {
             velocity.y += Physics.gravity.y * gravityScale * Time.deltaTime; // 🌎 Normal gravity
         }
         animator.SetFloat("VerticalVelocity", velocity.y);
-        controller.Move(velocity * Time.deltaTime);
+        Vector3 verticalMovement = new Vector3(0, velocity.y * Time.deltaTime, 0);
+        Vector3 move = moveDirection * speed * Time.deltaTime; // ✅ Move based on world input
+        controller.Move(move + verticalMovement);
     }
 
     private bool CanJump() {
