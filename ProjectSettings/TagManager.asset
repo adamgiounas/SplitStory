@@ -12,10 +12,10 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - VisisbleDaughterOnly
+  - VisibleKingOnly
+  - KingOnly
+  - DaughterOnly
   - 
   - 
   - 
